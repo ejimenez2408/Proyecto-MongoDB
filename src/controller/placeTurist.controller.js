@@ -99,7 +99,6 @@ const getPlaceTuristsByCityController = async (req, res) => {
         } else {
             placeTurists = await prisma.placeTurist.findMany();
         }
-
         res.status(200).json(placeTurists);
     } catch (error) {
         console.error(error);

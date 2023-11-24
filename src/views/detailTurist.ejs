@@ -212,11 +212,46 @@
             newComment.innerHTML = `<strong>${username}:</strong> ${content}<p>${new Date().toLocaleDateString()}</p>`;
             commentList.appendChild(newComment);
 
+            if (data.message === 'Comentario Creado Correctamente!') {
+            alert('Comentario Creado Correctamente!');
+        }
+
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
     document.getElementById('commentForm').addEventListener('submit', submitComment);
+
+    const submitVote = async (commentId, voteType) => {
+    try {
+        const response = await fetch(`/vote/${commentId}/${voteType}`, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'default',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+        console.log('Respuesta del servidor:', data);
+
+        if (data.success) {
+            const likeCountElement = document.getElementById(`likeCount_${commentId}`);
+            const dislikeCountElement = document.getElementById(`dislikeCount_${commentId}`);
+
+            if (voteType === 'like') {
+                likeCountElement.textContent = data.likeCount;
+            } else if (voteType === 'dislike') {
+                dislikeCountElement.textContent = data.dislikeCount;
+            }
+        } else {
+            console.error('Error al procesar el voto');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
 </script>
 </html>

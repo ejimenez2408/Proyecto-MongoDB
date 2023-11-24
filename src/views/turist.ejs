@@ -17,6 +17,7 @@
         <option value="">Todas las Ciudades</option>
         <option value="Cartagena">Cartagena</option>
         <option value="Barranquilla">Barranquilla</option>
+        <option value="Santa Marta">Santa Marta</option>
     </select>
     <div id="results-container" class="card-container">
         <% placeTurists.forEach(site => { %>
@@ -43,16 +44,13 @@
         const selectedCity = document.getElementById('cityFilter').value;
 
         try {
-            console.log('Seleccionado:', selectedCity);
             const response = await fetch(`/placeTuristsByCity?city=${selectedCity}`);
             const data = await response.json();
-            console.log('Datos recibidos:', data);
 
             const resultsContainer = document.getElementById('results-container');
             resultsContainer.innerHTML = '';
 
             if (selectedCity === '' || data.length === 0) {
-                console.log('Mostrar todas las tarjetas');
                 data.forEach(site => {
                     const card = document.createElement('div');
                     card.classList.add('card');
@@ -108,7 +106,6 @@
                 });
             } else {
                 data.forEach(site => {
-                    console.log(`Mostrar tarjetas para ${selectedCity}`);
                     const card = document.createElement('div');
                     card.classList.add('card');
                     card.dataset.city = site.city;

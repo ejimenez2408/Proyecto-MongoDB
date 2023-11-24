@@ -48,3 +48,27 @@ export const deletePost = async (req, res) => {
     });
     return post;
 }
+
+export const updateCommentVotes = async (commentId, voteType) => {
+    const comment = await prisma.post.findUnique({
+        where: { id: commentId },
+    });
+
+    if (!comment) {
+        throw new Error('Comentario no encontrado');
+    }
+
+    if (voteType === 'like') {
+        comment.like += 1;
+    } else if (voteType === 'dislike') {
+        comment.dislike += 1;
+    }
+
+    const updatedComment = await prisma.post.update({
+        where: { id: commentId },
+        data: { like: comment.like, dislike: comment.dislike },
+    });
+
+    return updatedComment;
+};
+

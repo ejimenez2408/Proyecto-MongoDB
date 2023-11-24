@@ -1,5 +1,5 @@
 //import { PrismaClient } from '@prisma/client';
-import { postPost,updatePost,deletePost,getPost,getPosts } from '../libs/post.js';
+import { postPost,updatePost,deletePost,getPost,getPosts,updateCommentVotes } from '../libs/post.js';
 
 //const prisma = new PrismaClient();
 
@@ -74,8 +74,27 @@ const getPostsController = async (req, res) =>{
     }
 }
 
+const submitVote = async (req, res) => {
+    try {
+        const commentId = req.params.commentId;
+        const voteType = req.params.voteType;
+
+        const updatedComment = await updateCommentVotes(commentId, voteType);
+
+        res.json({
+            success: true,
+            likeCount: updatedComment.like,
+            dislikeCount: updatedComment.dislike,
+        });
+    } catch (error) {
+        console.error('Error al procesar el voto:', error);
+        res.status(500).json({ success: false, error: 'Error al procesar el voto' });
+    }
+};
+
 export {postPostController,
         updatePostController,
         deletePostController,
         getPostController,
-        getPostsController}
+        getPostsController,
+        submitVote}
