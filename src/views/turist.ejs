@@ -1,0 +1,170 @@
+<!-- views/turist.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Sitios Turisticos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        Sitios Turísticos
+    </header>
+    <label for="cityFilter">Filtrar por Ciudad:</label>
+    <select id="cityFilter" onchange="filterByCity()">
+        <option value="">Todas las Ciudades</option>
+        <option value="Cartagena">Cartagena</option>
+        <option value="Barranquilla">Barranquilla</option>
+    </select>
+    <div id="results-container" class="card-container">
+        <% placeTurists.forEach(site => { %>
+        <div class="card" data-city="<%= site.city %>">
+            <div class="face front">
+                <img src="<%= site.image %>" alt="">
+                <h3><%= site.namePlace %></h3>
+            </div>
+            <div class="face back">
+                <h3><%= site.namePlace %></h3>
+                <p><%= site.description %></p>
+                <h4>Ciudad: <span class="city"><%= site.city %></span></h4>
+                <h4>Visitas : <%= site.visit %></h4>
+                <div class="link">
+                    <a href="/placeTurist/<%= site.id %>?visit=true">Visitar</a>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</body>
+<script>
+    async function filterByCity() {
+        const selectedCity = document.getElementById('cityFilter').value;
+
+        try {
+            console.log('Seleccionado:', selectedCity);
+            const response = await fetch(`/placeTuristsByCity?city=${selectedCity}`);
+            const data = await response.json();
+            console.log('Datos recibidos:', data);
+
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';
+
+            if (selectedCity === '' || data.length === 0) {
+                console.log('Mostrar todas las tarjetas');
+                data.forEach(site => {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.dataset.city = site.city;
+
+                    const frontFace = document.createElement('div');
+                    frontFace.classList.add('face', 'front');
+
+                    const image = document.createElement('img');
+                    image.src = site.image;
+                    image.alt = site.namePlace;
+
+                    const h3Front = document.createElement('h3');
+                    h3Front.textContent = site.namePlace;
+
+                    frontFace.appendChild(image);
+                    frontFace.appendChild(h3Front);
+
+                    const backFace = document.createElement('div');
+                    backFace.classList.add('face', 'back');
+
+                    const h3Back = document.createElement('h3');
+                    h3Back.textContent = site.namePlace;
+
+                    const p = document.createElement('p');
+                    p.textContent = site.description;
+
+                    const h4City = document.createElement('h4');
+                    h4City.textContent = `Ciudad: ${site.city}`;
+
+                    const h4Visit = document.createElement('h4');
+                    h4Visit.textContent = `Visitas: ${site.visit}`;
+
+                    const link = document.createElement('div');
+                    link.classList.add('link');
+
+                    const a = document.createElement('a');
+                    a.href = `/placeTurist/${site.id}?visit=true`;
+                    a.textContent = 'Visitar';
+
+                    link.appendChild(a);
+
+                    backFace.appendChild(h3Back);
+                    backFace.appendChild(p);
+                    backFace.appendChild(h4City);
+                    backFace.appendChild(h4Visit);
+                    backFace.appendChild(link);
+
+                    card.appendChild(frontFace);
+                    card.appendChild(backFace);
+
+                    resultsContainer.appendChild(card);
+                });
+            } else {
+                data.forEach(site => {
+                    console.log(`Mostrar tarjetas para ${selectedCity}`);
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.dataset.city = site.city;
+
+                    const frontFace = document.createElement('div');
+                    frontFace.classList.add('face', 'front');
+
+                    const image = document.createElement('img');
+                    image.src = site.image;
+                    image.alt = site.namePlace;
+
+                    const h3Front = document.createElement('h3');
+                    h3Front.textContent = site.namePlace;
+
+                    frontFace.appendChild(image);
+                    frontFace.appendChild(h3Front);
+
+                    const backFace = document.createElement('div');
+                    backFace.classList.add('face', 'back');
+
+                    const h3Back = document.createElement('h3');
+                    h3Back.textContent = site.namePlace;
+
+                    const p = document.createElement('p');
+                    p.textContent = site.description;
+
+                    const h4City = document.createElement('h4');
+                    h4City.textContent = `Ciudad: ${site.city}`;
+
+                    const h4Visit = document.createElement('h4');
+                    h4Visit.textContent = `Visitas: ${site.visit}`;
+
+                    const link = document.createElement('div');
+                    link.classList.add('link');
+
+                    const a = document.createElement('a');
+                    a.href = `/placeTurist/${site.id}?visit=true`;
+                    a.textContent = 'Visitar';
+
+                    link.appendChild(a);
+
+                    backFace.appendChild(h3Back);
+                    backFace.appendChild(p);
+                    backFace.appendChild(h4City);
+                    backFace.appendChild(h4Visit);
+                    backFace.appendChild(link);
+
+                    card.appendChild(frontFace);
+                    card.appendChild(backFace);
+
+                    resultsContainer.appendChild(card);
+                });
+            }
+        } catch (error) {
+            console.error('Error al obtener datos:', error);
+        }
+    }
+</script>
+</html>

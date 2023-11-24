@@ -1,0 +1,222 @@
+<!-- views/detalleSitio.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Detalles del Sitio Turístico</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .detalle-sitio {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            color: #555;
+        }
+
+        p {
+            color: #666;
+        }
+
+        h4 {
+            color: #888;
+        }
+
+        .comentarios {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .nombre-usuario {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .link {
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .comentarios-existentes {
+            margin-bottom: 20px;
+        }
+
+        .comentarios-existentes ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .comentarios-existentes li {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .comentarios form {
+            margin-top: 20px;
+        }
+
+        .comentarios h4,
+        .comentarios-existentes h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .comentarios textarea,
+        .comentarios input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .comentarios button {
+            background-color: rgba(3, 35, 54);;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .comentarios button:hover {
+            background-color: rgba(3, 35, 54);;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="detalle-sitio">
+        <h2>Detalles del Sitio Turístico</h2>
+        <img src="<%= placeTurist.image %>" alt="<%= placeTurist.namePlace %>">
+        <h3><%= placeTurist.namePlace %></h3>
+        <p><%= placeTurist.description %></p>
+        <h4>Ciudad: <%= placeTurist.city %></h4>
+        <div class="comentarios">
+            <form id="commentForm" action="/post" method="post">
+                <h4>Comentario</h4>
+                <textarea id="comentario" name="comentario" placeholder="Deja tu comentario"></textarea>
+                <div class="nombre-usuario">
+                    <h4>Nombre de Usuario</h4>
+                    <input id="usuario" type="text" name="usuario" placeholder="Tu nombre">
+                </div>
+                <input type="hidden" name="placeId" value="<%= placeTurist.id %>">
+                <button onclick="submitComment()" type="submit">Comentar</button>
+            </form>
+        </div>
+        <div class="comentarios-existentes">
+            <h4>Comentarios:</h4>
+            <ul id="commentList">
+                <% if (placeTurist.posts && placeTurist.posts.length > 0) { %>
+                    <% placeTurist.posts.forEach(comment => { %>
+                        <li class="comentarios">
+                            <strong><%= comment.username %>:</strong> <%= comment.content %>
+                            <p><%= new Date(comment.createdAt).toLocaleDateString() %></p>
+                            <div class="votos">
+                                <button onclick="submitVote('<%= comment.id %>', 'like')">Like</button>
+                                <span id="likeCount_<%= comment.id %>"><%= comment.like %></span>
+                                <button onclick="submitVote('<%= comment.id %>', 'dislike')">Dislike</button>
+                                <span id="dislikeCount_<%= comment.id %>"><%= comment.dislike %></span>
+                            </div>
+                        </li>
+                    <% }) %>
+                <% } else { %>
+                    <li class="comentarios">
+                        <p>No hay comentarios aún.</p>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+        <div class="link">
+            <a href="/placeTurists">Volver a la Lista</a>
+        </div>
+    </div>
+</body>
+<script>
+    const submitComment = async (event) => {
+        try {
+            event.preventDefault();
+
+            const content = document.getElementById('comentario').value;
+            const username = document.getElementById('usuario').value;
+            const placeId = document.querySelector('input[name="placeId"]').value;
+
+            var dataJson = {
+                like: 0,
+                username: username,
+                dislike: 0,
+                placeId: placeId,
+                content: content
+            };
+
+            const response = await fetch('/post', {
+                method: 'POST',
+                mode: "cors",
+                cache: "default",
+                body: JSON.stringify(dataJson),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            
+            const data = await response.json();
+            console.log('Respuesta del servidor:', data);
+
+            document.getElementById('comentario').value = '';
+            document.getElementById('usuario').value = '';
+
+            const commentList = document.getElementById('commentList');
+            const newComment = document.createElement('li');
+            newComment.className = 'comentarios';
+            newComment.innerHTML = `<strong>${username}:</strong> ${content}<p>${new Date().toLocaleDateString()}</p>`;
+            commentList.appendChild(newComment);
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    document.getElementById('commentForm').addEventListener('submit', submitComment);
+</script>
+</html>
